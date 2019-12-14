@@ -1,7 +1,0 @@
-version: "Apple Swift version 5.0.1 (swiftlang-1001.0.82.4 clang-1001.0.46.5)"
-options: "e1091b337ce87ecf1f0cad9887397a9f"
-build_time: [1576366973, 483896000]
-inputs:
-  "/Users/jvocal/development/fluttube/macos/Runner/MainFlutterWindow.swift": [1576261618, 570778428]
-  "/Users/jvocal/development/fluttube/macos/Runner/AppDelegate.swift": [1576261618, 567898728]
-  "/Users/jvocal/development/fluttube/macos/Flutter/GeneratedPluginRegistrant.swift": [1576366969, 795637593]
