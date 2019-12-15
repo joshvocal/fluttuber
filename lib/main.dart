@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttube/models/download.dart';
+import 'package:fluttube/widgets/download_item_widget.dart';
 
 void main() => runApp(MyApp());
 
@@ -54,17 +56,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void addToList() {
+    for (var value in myController.text.split('\n')) {
+      Download download = Download(url: value, format: dropdownValue);
+
+      setState(() {
+        items.add(DownloadItemWidget(
+          download: download,
+        ));
+      });
+    }
+  }
+
+  void realDownload() {
+    for (DownloadItemWidget item in items) {
+      if (item.download.isSelected) {
+        print("Yee");
+      }
+    }
+  }
+
   String path = Directory.current.path;
   final myController = TextEditingController();
   String dropdownValue = 'mp4';
   String progress = 'This thing';
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    myController.dispose();
-    super.dispose();
-  }
+  List<DownloadItemWidget> items = [];
 
   @override
   Widget build(BuildContext context) {
@@ -152,18 +168,46 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 FlatButton(
                   child: Text(
-                    "Download",
+                    "Add",
                     style: TextStyle(color: Colors.white),
                   ),
                   color: Colors.blue,
-                  onPressed: () => _incrementCounter(),
+                  onPressed: () => addToList(),
+//                  onPressed: () => _incrementCounter(),
                 ),
               ],
             ),
             Text(progress),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index) {
+                  return items[index];
+                },
+                itemCount: items.length,
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FlatButton(
+                child: Text(
+                  "Download",
+                  style: TextStyle(color: Colors.white),
+                ),
+                color: Colors.blue,
+                onPressed: () => realDownload(),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+    super.dispose();
   }
 }
