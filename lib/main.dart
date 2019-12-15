@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:args/args.dart';
 
 void main() => runApp(MyApp());
 
@@ -32,22 +31,33 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   void _incrementCounter() async {
-    Process.start('youtube-dl', [myController.text, '--format', dropdownValue])
-        .then((Process process) {
-      process.stdout.transform(utf8.decoder).listen((data) {
-        print(data);
-      });
+    print(myController.text);
+    print(myController.text.split("\n"));
 
-      process.stdin.writeln('Download has started!');
-      process.exitCode.then((exitCode) {
-        print('exit code: $exitCode');
+    List<String> urls = myController.text.split('\n');
+
+    for (var url in urls) {
+      Process.start('youtube-dl', [url, '--format', dropdownValue])
+          .then((Process process) async {
+        process.stdout.transform(utf8.decoder).listen((data) {
+          setState(() {
+            progress = data;
+          });
+        });
+
+        process.stdin.writeln('Download has started!');
+
+        process.exitCode.then((exitCode) {
+          print('exit code: $exitCode');
+        });
       });
-    });
+    }
   }
 
   String path = Directory.current.path;
   final myController = TextEditingController();
   String dropdownValue = 'mp4';
+  String progress = 'This thing';
 
   @override
   void dispose() {
@@ -91,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 child: TextField(
                   controller: myController,
-                  maxLines: 1,
+                  maxLines: null,
                   textAlign: TextAlign.start,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -150,6 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
+            Text(progress),
           ],
         ),
       ),
