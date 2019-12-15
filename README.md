@@ -1,4 +1,4 @@
-# fluttube
+# fluttuber
 
 💽 A Flutter Desktop GUI wrapper for youtube-dl.
 
