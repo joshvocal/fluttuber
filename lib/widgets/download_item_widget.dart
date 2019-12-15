@@ -9,10 +9,10 @@ class DownloadItemWidget extends StatefulWidget {
 
   Download download;
 
-  _DownloadItemWidgetState test = _DownloadItemWidgetState();
+  _DownloadItemWidgetState widgetState = _DownloadItemWidgetState();
 
   @override
-  _DownloadItemWidgetState createState() => test;
+  _DownloadItemWidgetState createState() => widgetState;
 }
 
 class _DownloadItemWidgetState extends State<DownloadItemWidget> {
@@ -25,16 +25,23 @@ class _DownloadItemWidgetState extends State<DownloadItemWidget> {
         });
       },
       child: Card(
-        color: widget.download.isSelected ? Colors.blue : Colors.red,
-        child: ListTile(
-          title: Text(widget.download.url),
-          subtitle: Text(widget.download.info),
+        color: widget.download.isSelected ? Colors.blue : Colors.grey,
+        child: Container(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text("URL: " + widget.download.url),
+              Text("Format: " + widget.download.format),
+              Text("Progress: " + widget.download.progress),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void start() {
+  void startDownload() {
     Process.start('youtube-dl', [
       widget.download.url,
       '--format',
@@ -42,7 +49,7 @@ class _DownloadItemWidgetState extends State<DownloadItemWidget> {
     ]).then((Process process) async {
       process.stdout.transform(utf8.decoder).listen((data) {
         setState(() {
-          this.widget.download.info = data;
+          this.widget.download.progress = data;
         });
       });
 

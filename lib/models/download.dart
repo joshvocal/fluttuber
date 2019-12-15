@@ -14,5 +14,5 @@ class Download {
   bool isSelected = false;
   String url;
   String format;
-  String info = '';
+  String progress = 'n/a';
 }

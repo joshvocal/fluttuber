@@ -3,84 +3,37 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttube/models/download.dart';
+import 'package:fluttube/resources/constants.dart';
 import 'package:fluttube/widgets/download_item_widget.dart';
+import 'package:fluttube/widgets/url_input_widget.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(Fluttube());
 
-class MyApp extends StatelessWidget {
+class Fluttube extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Fluttube',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MainPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
+class MainPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  void _incrementCounter() async {
-    print(myController.text);
-    print(myController.text.split("\n"));
-
-    List<String> urls = myController.text.split('\n');
-
-    for (var url in urls) {
-      Process.start('youtube-dl', [url, '--format', dropdownValue])
-          .then((Process process) async {
-        process.stdout.transform(utf8.decoder).listen((data) {
-          setState(() {
-            progress = data;
-          });
-        });
-
-        process.stdin.writeln('Download has started!');
-
-        process.exitCode.then((exitCode) {
-          print('exit code: $exitCode');
-        });
-      });
-    }
-  }
-
-  void addToList() {
-    for (var value in myController.text.split('\n')) {
-      Download download = Download(url: value, format: dropdownValue);
-
-      setState(() {
-        items.add(DownloadItemWidget(
-          download: download,
-        ));
-      });
-    }
-  }
-
-  void realDownload() {
-    for (DownloadItemWidget item in items) {
-      if (item.download.isSelected) {
-        item.test.start();
-      }
-    }
-  }
-
-  String path = Directory.current.path;
-  final myController = TextEditingController();
-  String dropdownValue = 'mp4';
-  String progress = 'This thing';
+class _MainPageState extends State<MainPage> {
+  final urlTextFieldController = TextEditingController();
   List<DownloadItemWidget> items = [];
+  String currentFileFormatSelected = 'mp4';
+  String currentPath = Directory.current.path;
 
   @override
   Widget build(BuildContext context) {
@@ -90,94 +43,64 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            UrlInputTitle(),
+            UrlInputBox(
+              urlTextFieldController: urlTextFieldController,
+            ),
             Padding(
-              padding: EdgeInsets.only(bottom: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text('Enter URLs below'),
+                  Icon(
+                    Icons.folder,
+                    size: 32,
+                  ),
+                  Padding(
+                    child: Text(currentPath),
+                    padding: EdgeInsets.only(left: 8),
+                  ),
                   Spacer(),
-                  Icon(Icons.settings),
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: currentFileFormatSelected,
+                      iconSize: 24,
+                      onChanged: (String newValue) {
+                        setState(() {
+                          currentFileFormatSelected = newValue;
+                        });
+                      },
+                      items: kFileFormats
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Padding(
+                    child: FlatButton(
+                      child: Text(
+                        "Add To List",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      color: Colors.blue,
+                      onPressed: () => addURLsToList(),
+                    ),
+                    padding: EdgeInsets.only(left: 16),
+                  ),
                 ],
               ),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
             ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.2,
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1.0,
+            Padding(
+              child: Text(
+                'Download List',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 8,
-                ),
-                child: TextField(
-                  controller: myController,
-                  maxLines: null,
-                  textAlign: TextAlign.start,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
+              padding: EdgeInsets.only(bottom: 16),
             ),
-            Row(
-              children: <Widget>[
-                Icon(
-                  Icons.folder,
-                  size: 48,
-                ),
-                Padding(
-                  child: Text(path),
-                  padding: EdgeInsets.only(left: 8),
-                ),
-                Spacer(),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: dropdownValue,
-                    iconSize: 24,
-                    onChanged: (String newValue) {
-                      setState(() {
-                        dropdownValue = newValue;
-                      });
-                    },
-                    items: <String>[
-                      'mp4',
-                      'mp3',
-                      'wav',
-                      'aac',
-                      '3gp',
-                      'm4a',
-                      'flv',
-                      'ogg',
-                      'webm',
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                SizedBox(
-                  width: 16,
-                ),
-                FlatButton(
-                  child: Text(
-                    "Add",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  color: Colors.blue,
-                  onPressed: () => addToList(),
-//                  onPressed: () => _incrementCounter(),
-                ),
-              ],
-            ),
-            Text(progress),
             Expanded(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -187,16 +110,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemCount: items.length,
               ),
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: FlatButton(
-                child: Text(
-                  "Download",
-                  style: TextStyle(color: Colors.white),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FlatButton(
+                  child: Text(
+                    "Remove",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  color: Colors.blue,
+                  onPressed: () => removeSelected(),
                 ),
-                color: Colors.blue,
-                onPressed: () => realDownload(),
-              ),
+                SizedBox(
+                  width: 8,
+                ),
+                FlatButton(
+                  child: Text(
+                    "Download",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  color: Colors.blue,
+                  onPressed: () => downloadEntireList(),
+                ),
+              ],
             ),
           ],
         ),
@@ -207,7 +143,44 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
-    myController.dispose();
+    urlTextFieldController.dispose();
     super.dispose();
+  }
+
+  void downloadEntireList() {
+    for (DownloadItemWidget item in items) {
+      if (item.download.isSelected) {
+        item.widgetState.startDownload();
+      }
+    }
+  }
+
+  void removeSelected() {
+    List<DownloadItemWidget> notSelectedItems = [];
+
+    for (DownloadItemWidget item in items) {
+      if (!item.download.isSelected) {
+        notSelectedItems.add(item);
+      }
+    }
+
+    setState(() {
+      items = notSelectedItems;
+    });
+  }
+
+  void addURLsToList() {
+    List<String> urls = urlTextFieldController.text.split('\n');
+
+    for (var url in urls) {
+      Download download = Download(url: url, format: currentFileFormatSelected);
+      DownloadItemWidget widget = DownloadItemWidget(download: download);
+
+      if (!items.contains(widget)) {
+        setState(() {
+          items.add(widget);
+        });
+      }
+    }
   }
 }
