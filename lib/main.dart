@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void realDownload() {
     for (DownloadItemWidget item in items) {
       if (item.download.isSelected) {
-        print("Yee");
+        item.test.start();
       }
     }
   }

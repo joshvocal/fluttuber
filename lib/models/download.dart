@@ -15,6 +15,4 @@ class Download {
   String url;
   String format;
   String info = '';
-
-
 }

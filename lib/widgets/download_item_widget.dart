@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fluttube/models/download.dart';
 
@@ -6,8 +9,10 @@ class DownloadItemWidget extends StatefulWidget {
 
   Download download;
 
+  _DownloadItemWidgetState test = _DownloadItemWidgetState();
+
   @override
-  _DownloadItemWidgetState createState() => _DownloadItemWidgetState();
+  _DownloadItemWidgetState createState() => test;
 }
 
 class _DownloadItemWidgetState extends State<DownloadItemWidget> {
@@ -27,5 +32,23 @@ class _DownloadItemWidgetState extends State<DownloadItemWidget> {
         ),
       ),
     );
+  }
+
+  void start() {
+    Process.start('youtube-dl', [
+      widget.download.url,
+      '--format',
+      widget.download.format
+    ]).then((Process process) async {
+      process.stdout.transform(utf8.decoder).listen((data) {
+        setState(() {
+          this.widget.download.info = data;
+        });
+      });
+
+      process.exitCode.then((exitCode) {
+        print('exit code: $exitCode');
+      });
+    });
   }
 }
