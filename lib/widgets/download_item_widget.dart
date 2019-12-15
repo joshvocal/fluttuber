@@ -33,7 +33,10 @@ class _DownloadItemWidgetState extends State<DownloadItemWidget> {
             children: <Widget>[
               Text("URL: " + widget.download.url),
               Text("Format: " + widget.download.format),
-              Text("Progress: " + widget.download.progress),
+              Text(
+                "Progress: " + widget.download.progress,
+                maxLines: 1,
+              ),
             ],
           ),
         ),
